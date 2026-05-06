@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f6fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: #fff;
+            padding: 24px;
+            border-radius: 10px;
+            width: 340px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        .error {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background: #4CAF50;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Sign Up</h2>
+
+        <form id="signupForm">
+
+            <!-- Display Name -->
+            <div class="form-group">
+                <label>Display Name</label>
+                <input type="text" id="displayName">
+                <div class="error" id="displayNameError"></div>
+            </div>
+
+            <!-- Username (Email) -->
+            <div class="form-group">
+                <label>Username (Email)</label>
+                <input type="text" id="username">
+                <div class="error" id="usernameError"></div>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password">
+                <div class="error" id="passwordError"></div>
+            </div>
+
+            <button type="submit">Sign Up</button>
+        </form>
+
+        <div class="footer">
+            Already have an account? <a href="login.html">Log in</a>
+        </div>
+    </div>
+
+    <script>
+        /* ======================
+           MODEL
+           ====================== */
+        const Model = {
+
+            validateDisplayName(name) {
+                if (!name.trim()) return "Display name is required.";
+                if (name.trim().length < 2) return "Display name must be at least 2 characters.";
+                if (!/^[a-zA-Z0-9\s'-]+$/.test(name)) {
+                    return "Display name contains invalid characters.";
+                }
+                return null;
+            },
+
+            validateEmail(email) {
+                if (!email.trim()) return "Username is required.";
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    return "Enter a valid email address.";
+                }
+                return null;
+            },
+
+            validatePassword(password) {
+                if (!password.trim()) return "Password is required.";
+                if (password.length < 8) return "Password must be at least 8 characters.";
+                if (!/[A-Z]/.test(password)) return "Must include at least one uppercase letter.";
+                if (!/[a-z]/.test(password)) return "Must include at least one lowercase letter.";
+                if (!/[0-9]/.test(password)) return "Must include at least one number.";
+                if (!/[!@#$%^&*]/.test(password)) return "Must include at least one special character.";
+                return null;
+            }
+        };
+
+        /* ======================
+           VIEW
+           ====================== */
+        const View = {
+            displayNameInput: document.getElementById('displayName'),
+            usernameInput: document.getElementById('username'),
+            passwordInput: document.getElementById('password'),
+
+            displayNameError: document.getElementById('displayNameError'),
+            usernameError: document.getElementById('usernameError'),
+            passwordError: document.getElementById('passwordError'),
+
+            getFormData() {
+                return {
+                    displayName: this.displayNameInput.value,
+                    username: this.usernameInput.value,
+                    password: this.passwordInput.value
+                };
+            },
+
+            showError(element, message) {
+                element.textContent = message;
+                element.classList.add('show');
+            },
+
+            clearError(element) {
+                element.textContent = '';
+                element.classList.remove('show');
+            },
+
+            clearAllErrors() {
+                this.clearError(this.displayNameError);
+                this.clearError(this.usernameError);
+                this.clearError(this.passwordError);
+            }
+        };
+
+        /* ======================
+           CONTROLLER
+           ====================== */
+        const Controller = {
+            init() {
+                document.getElementById('signupForm')
+                    .addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.handleSubmit();
+                    });
+            },
+
+            handleSubmit() {
+                const data = View.getFormData();
+                View.clearAllErrors();
+
+                let isValid = true;
+
+                // Display Name
+                const nameError = Model.validateDisplayName(data.displayName);
+                if (nameError) {
+                    View.showError(View.displayNameError, nameError);
+                    isValid = false;
+                }
+
+                // Email
+                const emailError = Model.validateEmail(data.username);
+                if (emailError) {
+                    View.showError(View.usernameError, emailError);
+                    isValid = false;
+                }
+
+                // Password
+                const passwordError = Model.validatePassword(data.password);
+                if (passwordError) {
+                    View.showError(View.passwordError, passwordError);
+                    isValid = false;
+                }
+
+                // Success
+                if (isValid) {
+                    alert(
+                        `Display Name: ${data.displayName} | Username: ${data.username} | Password: ${data.password}`
+                    );
+                }
+            }
+        };
+
+        // Init app
+        Controller.init();
+    </script>
+</body>
+
+</html>
