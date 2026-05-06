@@ -4,250 +4,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <!--
-    VIEW-CSS
-    Defines layout and all visual states.
-    Js never writes style=""directly  - it only adds/removes
-    the state classes defined here.
-    -->
+    <title>MVC Login</title>
+
     <style>
         body {
+            font-family: Arial, sans-serif;
+            background: #f5f6fa;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #090b15, #0c0613);
-
+            height: 100vh;
         }
 
-        /* Glass card */
-        .card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(14px);
-            border-radius: 16px;
-            padding: 32px;
-            width: 100%;
-            max-width: 380px;
-            color: #fff;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        .container {
+            background: #fff;
+            padding: 24px;
+            border-radius: 10px;
+            width: 320px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        h1 {
+        h2 {
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
-        /* Inputs */
-        .field-input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            outline: none;
-            background: rgba(255, 255, 255, 0.2);
-            color: #fff;
-            transition: 0.3s;
-
+        .form-group {
+            margin-bottom: 16px;
         }
 
-        .field-input::placeholder {
-            color: #ddd;
-
-        }
-
-        .field-input:focus {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        /*Labels*/
-        .field-lable {
-            font-size: 13px;
-            margin-bottom: 6px;
+        label {
             display: block;
-
-        }
-
-        /*Error*/
-        .field-error {
-            font-size: 12px;
-            min-height: 16px;
-            margin-top: 5px;
-            color: transparent;
-        }
-
-        /*Button*/
-        .submit-btn {
-            width: 100%;
-            padding: 12px;
-            margin-top: 10px;
-            border-radius: 8px;
-            border: none;
-            background: 00c6ff;
-            background: linear-gradient(90deg, #222d30, #021022);
-            color: white;
+            margin-bottom: 6px;
             font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        .error {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background: #4CAF50;
+            color: white;
+            border-radius: 6px;
             cursor: pointer;
-            transition: 0.3s;
         }
 
-        .submit-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        /*Footer*/
-        .card-footer {
+        .footer {
             text-align: center;
-            margin-top: 20px;
-        }
-
-        .card-footer a {
-            color: #fff;
-            text-decoration: underline;
-        }
-
-        /*STATES*/
-        .field-input.fail {
-            border: 2px solid #ff6b6b;
-        }
-
-        .field-error.fail {
-            color: #ff6b6b;
-        }
-
-        .field-input.success {
-            border: 2px solid #010e03;
+            margin-top: 12px;
+            font-size: 14px;
         }
     </style>
 </head>
 
 <body>
-    <div class="card">
-        <h1>Welcome Back</h1>
-        <form id="login-form" novalidate>
-            <div class="form-row" data-field="username">
-                <label class="field-label">Email</label>
-                <input class="field-input" id="username" type="text" placeholder="Enter your email">
-                <span class="field-error"></span>
+    <div class="container">
+        <h2>Login</h2>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Username (Email)</label>
+                <input type="text" id="username">
+                <div class="error" id="usernameError"></div>
             </div>
-            <div class="form-row" data-field="password">
-                <label class="field-label">Password</label>
-                <input class="field-input" id="password" type="password" placeholder="Enter your password">
-                <span class="field-error"></span>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password">
+                <div class="error" id="passwordError"></div>
             </div>
-            <button class="submit-btn" type="submit">Login</button>
+
+            <button type="submit">Login</button>
         </form>
-        <p class="card-footer">
-            Don't have an account?<a href="signup.html">Sign up</a>
-        </p>
+
+        <div class="footer">
+            Don’t have an account? <a href="signup.html">Sign up</a>
+        </div>
     </div>
-    <!--
-    CONTROLLER - JavaScript
-    All event writing happens here.
-    No inline handlers in HTML. No style="" write in JS.
-    Only class adds/removes to trigger CSS state rules.
-    -->
+
     <script>
-        /* SECTION 1 - Element accessors
-        Helper functions to locate DOM elements by field name.
-        Use these in every handler instead of repeating
-        document.getElementById/querySelector calls.
-        */
-        //returns the input element by its field name (id)
-        function getInput(fieldName) {
-            return document.getElementById(fieldName);
-        }
-        //finds and returns the error <span> inside the filed's row
-        function getErrorSpan(fieldName) {
-            return document
-                .querySelector(`.form-row[data-field="${fieldName}"]`)
-                .querySelector(`.field-error`);
-        }
-        /*
-        /*SECTION 2 - View updaters
-        Functions that change what the user sees.
-        They receive a DOM element and a value; they never
-        query the DOM themselves. */
-
-        //Updates input visual state:removes old state and applies "fails" or "success"
-        function applyInputState(input, state) {
-            input.classlist.remove('fail', 'success');
-            if (state) input.classlist.add(state);
-
-        }
-        //Displays error message and toggles visibility using 'fail' class
-        function applyErrorState(span, message) {
-            span.textContent = message;
-            if (message) {
-                span.classList.add('fail');
-
-            }
-            else {
-                span.classList.remove('fail');
-            }
-
-        }
-
-        /* SECTION 3 - Validation rules
-        Pure functions: take a field name an */
-
-        //Validates a field value and returns an error message or '' if valid
-        function validateField(field, value) {
-            if (field === 'username') {
-                if (!value) return 'Email is required.';
-                if (value.length < 3) return 'Must be at least 3 characters.';
-            }
-            if (field === 'password') {
-                if (!value) return 'Password is required.';
-                if (value.length < 8) return 'Must be at least 8 characters.'
-            }
-            return '';
-
-        }
-
-        //Handles form submission: validates all fields and triggers success if valid
-        /*SECTION 4 - SUBMIT HANDLER*/
-        function handleSubmit(e) {
-            e.preventDefault();
-            let isValid = true;
-            ['username', 'password'].forEach(field => {
-                const input = getInput(field);
-                const errorSpan = getErrorSpan(field);
-                const value = input.value.trim();
-                const error = validateField(field, value);
-
-                if (error) {
-                    applyInputState(input, 'fail');
-                    applyErrorState(errorSpan, error);
-                    isValid = false;
-                } else {
-                    applyInputState(input, 'success');
-                    applyErrorState(errorSpan, '');
+        /* ======================
+           MODEL
+           ====================== */
+        const Model = {
+            validateEmail(email) {
+                if (!email.trim()) return "Username is required.";
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    return "Enter a valid email address.";
                 }
-            });
-            if (isValid) {
-                onSuccess(
-                    getInput('username').value,
-                    getInput('password').value
-                );
+                return null;
+            },
+
+            validatePassword(password) {
+                if (!password.trim()) return "Password is required.";
+                if (password.length < 8) return "Password must be at least 8 characters.";
+                if (!/[A-Z]/.test(password)) return "Must include at least one uppercase letter.";
+                if (!/[a-z]/.test(password)) return "Must include at least one lowercase letter.";
+                if (!/[0-9]/.test(password)) return "Must include at least one number.";
+                if (!/[!@#$%^&*]/.test(password)) return "Must include at least one special character.";
+                return null;
             }
-        }
+        };
 
-        /* SECTION 5 - Success Handler*/
+        /* ======================
+           VIEW
+           ====================== */
+        const View = {
+            usernameInput: document.getElementById('username'),
+            passwordInput: document.getElementById('password'),
+            usernameError: document.getElementById('usernameError'),
+            passwordError: document.getElementById('passwordError'),
 
-        // Runs when all fields are valid(currently shows submitted data)
-        function onSuccess(username, password) {
-            alert(`Username: ${username} | Password:${password}`);
-        }
+            getFormData() {
+                return {
+                    username: this.usernameInput.value,
+                    password: this.passwordInput.value
+                };
+            },
 
-        /*Event Writing*/
-        // Runs on page load: attaches submit event to the form 
-        window.addEventListener('load', () => {
-            const form = document.getElementById('login-form');
-            form.addEventListener('submit', handleSubmit);
-        });
+            showError(element, message) {
+                element.textContent = message;
+                element.classList.add('show');
+            },
 
+            clearError(element) {
+                element.textContent = '';
+                element.classList.remove('show');
+            },
+
+            clearAllErrors() {
+                this.clearError(this.usernameError);
+                this.clearError(this.passwordError);
+            }
+        };
+
+        /* ======================
+           CONTROLLER
+           ====================== */
+        const Controller = {
+            init() {
+                const form = document.getElementById('loginForm');
+
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleSubmit();
+                });
+            },
+
+            handleSubmit() {
+                const data = View.getFormData();
+
+                View.clearAllErrors();
+
+                let isValid = true;
+
+                // Validate Username
+                const emailError = Model.validateEmail(data.username);
+                if (emailError) {
+                    View.showError(View.usernameError, emailError);
+                    isValid = false;
+                }
+
+                // Validate Password
+                const passwordError = Model.validatePassword(data.password);
+                if (passwordError) {
+                    View.showError(View.passwordError, passwordError);
+                    isValid = false;
+                }
+
+                // Success
+                if (isValid) {
+                    alert(`Username: ${data.username} | Password: ${data.password}`);
+                }
+            }
+        };
+
+        // Initialize App
+        Controller.init();
     </script>
 </body>
 
