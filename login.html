@@ -3,21 +3,15 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Signup</title>
+    <title>Login</title>
     <link rel="stylesheet" href="forms.css">
 </head>
 
 <body>
     <div class="container">
-        <h2>Sign Up</h2>
+        <h2>Login</h2>
 
-        <form id="signupForm">
-            <div class="form-group">
-                <label>Display Name</label>
-                <input id="displayName">
-                <div class="error" id="displayNameError"></div>
-            </div>
-
+        <form id="loginForm">
             <div class="form-group">
                 <label>Email</label>
                 <input id="username">
@@ -30,11 +24,11 @@
                 <div class="error" id="passwordError"></div>
             </div>
 
-            <button type="submit">Sign Up</button>
+            <button type="submit">Login</button>
         </form>
 
         <div class="footer">
-            Already have an account? <a href="login.html">Log in</a>
+            Don’t have an account? <a href="signup.html">Sign up</a>
         </div>
     </div>
 
@@ -42,7 +36,7 @@
     <script>
         const Controller = {
             init() {
-                document.getElementById('signupForm')
+                document.getElementById('loginForm')
                     .addEventListener('submit', (e) => {
                         e.preventDefault();
                         this.submit();
@@ -50,38 +44,30 @@
             },
 
             submit() {
-                const name = document.getElementById('displayName').value;
                 const email = document.getElementById('username').value;
                 const password = document.getElementById('password').value;
 
-                const nameErr = document.getElementById('displayNameError');
-                const emailErr = document.getElementById('usernameError');
-                const passErr = document.getElementById('passwordError');
+                const emailErrEl = document.getElementById('usernameError');
+                const passErrEl = document.getElementById('passwordError');
 
-                View.clearErrors([nameErr, emailErr, passErr]);
+                View.clearErrors([emailErrEl, passErrEl]);
 
                 let valid = true;
 
-                const nameError = Model.validateDisplayName(name);
-                if (nameError) {
-                    View.showError(nameErr, nameError);
-                    valid = false;
-                }
-
                 const emailError = Model.validateEmail(email);
                 if (emailError) {
-                    View.showError(emailErr, emailError);
+                    View.showError(emailErrEl, emailError);
                     valid = false;
                 }
 
                 const passError = Model.validatePassword(password);
                 if (passError) {
-                    View.showError(passErr, passError);
+                    View.showError(passErrEl, passError);
                     valid = false;
                 }
 
                 if (valid) {
-                    alert(`Display Name: ${name} | Username: ${email} | Password: ${password}`);
+                    alert(`Username: ${email} | Password: ${password}`);
                 }
             }
         };
